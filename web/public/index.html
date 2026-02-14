@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ 农场控制台</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>🌾 QQ 农场控制台</h1>
+            <div class="status-bar" id="statusBar">
+                <span class="bot-status" id="botStatus">
+                    <span class="status-dot"></span>
+                    <span id="botStatusText">未运行</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="main">
+            <!-- 登录卡片 -->
+            <section class="card" id="loginCard">
+                <h2>登录方式</h2>
+                <div class="login-methods">
+                    <button class="btn btn-primary btn-large" id="btnShowQr">
+                        <span class="icon">📱</span>
+                        QQ 扫码登录
+                    </button>
+
+                    <!-- 二维码显示区域 -->
+                    <div class="qr-container hidden" id="qrContainer">
+                        <div class="qr-code" id="qrCode">
+                            <div class="qr-loading">正在获取二维码...</div>
+                        </div>
+                        <p class="qr-tip">请使用 QQ 手机扫描二维码</p>
+                        <button class="btn btn-small" id="btnCancelQr">取消</button>
+                    </div>
+
+                    <div class="divider">或</div>
+                    <div class="code-input">
+                        <input type="text" id="codeInput" placeholder="请输入登录 code">
+                        <select id="platformSelect">
+                            <option value="qq">QQ 小程序</option>
+                            <option value="wx">微信小程序</option>
+                        </select>
+                        <button class="btn btn-secondary" id="btnCodeLogin">使用 Code 登录</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 用户信息卡片 -->
+            <section class="card hidden" id="userCard">
+                <h2>用户信息</h2>
+                <div class="user-info" id="userInfo">
+                    <div class="info-item">
+                        <span class="label">昵称</span>
+                        <span class="value" id="userName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">等级</span>
+                        <span class="value" id="userLevel">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">金币</span>
+                        <span class="value" id="userGold">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">经验</span>
+                        <span class="value" id="userExp">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 统计卡片 -->
+            <section class="card stats-card">
+                <div class="stats-header">
+                    <h2>数据统计</h2>
+                    <button class="btn-small" id="btnResetStats">重置</button>
+                </div>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-item">
+                        <span class="stat-icon">🌾</span>
+                        <span class="stat-value" id="statHarvest">0</span>
+                        <span class="stat-label">收获次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🌱</span>
+                        <span class="stat-value" id="statPlant">0</span>
+                        <span class="stat-label">种植次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">💧</span>
+                        <span class="stat-value" id="statWater">0</span>
+                        <span class="stat-label">浇水次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🌿</span>
+                        <span class="stat-value" id="statWeed">0</span>
+                        <span class="stat-label">除草次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🐛</span>
+                        <span class="stat-value" id="statInsect">0</span>
+                        <span class="stat-label">除虫次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🧪</span>
+                        <span class="stat-value" id="statFertilize">0</span>
+                        <span class="stat-label">施肥次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🤝</span>
+                        <span class="stat-value" id="statSteal">0</span>
+                        <span class="stat-label">偷菜次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">❤️</span>
+                        <span class="stat-value" id="statHelp">0</span>
+                        <span class="stat-label">帮忙次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">💰</span>
+                        <span class="stat-value" id="statSell">0</span>
+                        <span class="stat-label">出售次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">💵</span>
+                        <span class="stat-value" id="statSellGold">0</span>
+                        <span class="stat-label">出售金币</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📋</span>
+                        <span class="stat-value" id="statTask">0</span>
+                        <span class="stat-label">任务完成</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 控制面板 -->
+            <section class="card">
+                <h2>控制面板</h2>
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="farmInterval">农场巡查间隔 (秒)</label>
+                        <input type="number" id="farmInterval" min="1" max="300" value="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="friendInterval">好友巡查间隔 (秒)</label>
+                        <input type="number" id="friendInterval" min="1" max="300" value="10">
+                    </div>
+                    <div class="control-group checkbox">
+                        <label>
+                            <input type="checkbox" id="forceLowest">
+                            强制种植最低等级作物
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="btnSaveConfig" disabled>保存配置</button>
+                        <button class="btn btn-secondary" id="btnCheckFarm" disabled>手动巡田</button>
+                        <button class="btn btn-danger" id="btnStopBot" disabled>停止挂机</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 日志面板 -->
+            <section class="card log-card">
+                <div class="log-header">
+                    <h2>运行日志</h2>
+                    <button class="btn-small" id="btnClearLogs">清空</button>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-empty">暂无日志</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部 -->
+        <footer class="footer">
+            <span id="connectionStatus">
+                <span class="status-dot"></span>
+                <span id="connText">连接中...</span>
+            </span>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

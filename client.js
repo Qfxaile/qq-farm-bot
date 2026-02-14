@@ -25,6 +25,22 @@ const { emitRuntimeHint, sleep } = require('./src/utils');
 const { getQQFarmCodeByScan } = require('./src/qqQrLogin');
 const { initFileLogger } = require('./src/logger');
 
+// Web API 导出 - 网页服务器
+let webServer = null;
+async function startWebServer() {
+    try {
+        const { app } = require('./web/server');
+        const PORT = 3000;
+        app.listen(PORT, () => {
+            console.log(`[网页] 服务器已启动: http://localhost:${PORT}`);
+        });
+        return app;
+    } catch (error) {
+        console.error('[网页] 启动失败:', error.message);
+        return null;
+    }
+}
+
 initFileLogger();
 
 // ============ 帮助信息 ============
@@ -34,8 +50,8 @@ QQ经典农场 挂机脚本
 ====================
 
 用法:
-  node client.js --code <登录code> [--wx] [--interval <秒>] [--friend-interval <秒>]
-  node client.js --qr [--interval <秒>] [--friend-interval <秒>]
+  node client.js --code <登录code> [--wx] [--interval <秒>] [--friend-interval <秒>] [--web]
+  node client.js --qr [--interval <秒>] [--friend-interval <秒>] [--web]
   node client.js --verify
   node client.js --decode <数据> [--hex] [--gate] [--type <消息类型>]
 
@@ -43,8 +59,9 @@ QQ经典农场 挂机脚本
   --code              小程序 login() 返回的临时凭证 (必需)
   --qr                启动后使用QQ扫码获取登录code（仅QQ平台）
   --wx                使用微信登录 (默认为QQ小程序)
-  --interval          自己农场巡查完成后等待秒数, 默认10秒, 最低10秒
-  --friend-interval   好友巡查完成后等待秒数, 默认1秒, 最低1秒
+  --interval          自己农场巡查完成后等待秒数, 默认1秒, 最低1秒
+  --friend-interval   好友巡查完成后等待秒数, 默认10秒, 最低1秒
+  --web               同时启动网页控制台 (http://localhost:3000)
   --verify            验证proto定义
   --decode            解码PB数据 (运行 --decode 无参数查看详细帮助)
 
@@ -73,6 +90,7 @@ function parseArgs(args) {
         name: '',
         certId: '',
         certType: 0,
+        web: false,
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -81,6 +99,9 @@ function parseArgs(args) {
         }
         if (args[i] === '--qr') {
             options.qrLogin = true;
+        }
+        if (args[i] === '--web') {
+            options.web = true;
         }
         if (args[i] === '--wx') {
             CONFIG.platform = 'wx';
@@ -153,6 +174,11 @@ async function main() {
 
     const platformName = CONFIG.platform === 'wx' ? '微信' : 'QQ';
     console.log(`[启动] ${platformName} code=${options.code.substring(0, 8)}... 农场${CONFIG.farmCheckInterval / 1000}s 好友${CONFIG.friendCheckInterval / 1000}s`);
+
+    // 启动网页服务器（如果启用）
+    if (options.web) {
+        webServer = await startWebServer();
+    }
 
     // 连接并登录，登录成功后启动各功能模块
     connect(options.code, async () => {
